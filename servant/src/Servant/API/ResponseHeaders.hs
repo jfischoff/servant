@@ -49,8 +49,10 @@ import           Web.HttpApiData
 
 import           Prelude ()
 import           Prelude.Compat
+<<<<<<< HEAD
 import           Servant.API.Header
                  (Header)
+import           Data.List                   (find, delete)
 
 -- | Response Header objects. You should never need to construct one directly.
 -- Instead, use 'addOptionalHeader'.
@@ -88,13 +90,13 @@ instance {-# OVERLAPPABLE #-} ( FromHttpApiData v, BuildHeadersTo xs, KnownSymbo
          => BuildHeadersTo (Header h v ': xs) where
     buildHeadersTo headers =
       let wantedHeader = CI.mk . pack $ symbolVal (Proxy :: Proxy h)
-          matching = snd <$> filter (\(h, _) -> h == wantedHeader) headers
+          matching = find (\(h, _) -> h == wantedHeader) headers
       in case matching of
-        [] -> MissingHeader `HCons` buildHeadersTo headers
-        xs -> case parseHeader (BS.init $ BS.unlines xs) of
-          Left _err -> UndecodableHeader (BS.init $ BS.unlines xs)
-             `HCons` buildHeadersTo headers
-          Right h   -> Header h `HCons` buildHeadersTo headers
+        Nothing -> MissingHeader `HCons` buildHeadersTo headers
+        Just theHeader@(_, x) -> case parseHeader x of
+          Left _err -> UndecodableHeader x
+             `HCons` buildHeadersTo (delete theHeader headers)
+          Right h   -> Header h `HCons` buildHeadersTo (delete theHeader headers)
 
 -- * Getting
 
