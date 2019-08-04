@@ -49,7 +49,6 @@ import           Web.HttpApiData
 
 import           Prelude ()
 import           Prelude.Compat
-<<<<<<< HEAD
 import           Servant.API.Header
                  (Header)
 import           Data.List                   (find, delete)
